@@ -285,6 +285,30 @@ class RemoteCredoraxTest < Test::Unit::TestCase
     assert_equal 'Referred to transaction has not been found.', response.message
   end
 
+  def test_successful_referral_cft
+    response = @gateway.purchase(@amount, @credit_card, @options)
+    assert_success response
+
+    options = {referral_cft: true}
+    response = @gateway.refund(@amount, response.authorization, options)
+    assert_success response
+    assert_equal 'Succeeded', response.message
+    # Confirm that the transaction type was `referral_cft`
+    assert_equal '34', response.params['O']
+  end
+
+  def test_failed_referral_cft
+    response = @gateway.purchase(@amount, @credit_card, @options)
+    assert_success response
+
+    options = {referral_cft: true}
+    response = @gateway.refund(@amount, response.authorization, options)
+    assert_success response
+    assert_equal 'Succeeded', response.message
+    # Confirm that the transaction type was `referral_cft`
+    assert_equal '34', response.params['O']
+  end
+
   def test_successful_credit
     response = @gateway.credit(@amount, @credit_card, @options)
     assert_success response

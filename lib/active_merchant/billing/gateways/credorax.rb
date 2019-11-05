@@ -188,7 +188,12 @@ module ActiveMerchant #:nodoc:
         add_submerchant_id(post, options)
         add_processor(post, options)
 
-        commit(:refund, post)
+        if options[:referral_cft]
+          add_email(post, options)
+          commit(:referral_cft, post)
+        else
+          # commit(:refund, post)
+        end
       end
 
       def credit(amount, payment_method, options={})
@@ -372,7 +377,8 @@ module ActiveMerchant #:nodoc:
         purchase_void: '7',
         refund_void: '8',
         capture_void: '9',
-        threeds_completion: '92'
+        threeds_completion: '92',
+        referral_cft: '34'
       }
 
       def commit(action, params, reference_action = nil)
