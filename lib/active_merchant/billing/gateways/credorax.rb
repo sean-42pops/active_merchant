@@ -187,12 +187,12 @@ module ActiveMerchant #:nodoc:
         add_echo(post, options)
         add_submerchant_id(post, options)
         add_processor(post, options)
+        add_email(post, options)
 
         if options[:referral_cft]
-          add_email(post, options)
           commit(:referral_cft, post)
         else
-          # commit(:refund, post)
+          commit(:refund, post)
         end
       end
 

@@ -302,9 +302,9 @@ class RemoteCredoraxTest < Test::Unit::TestCase
     assert_success response
 
     options = {referral_cft: true}
-    response = @gateway.refund(@amount, response.authorization, options)
-    assert_success response
-    assert_equal 'Succeeded', response.message
+    response = @gateway.refund(@amount, '123;123;123', options)
+    assert_failure response
+    assert_equal 'Referred to transaction has not been found.', response.message
     # Confirm that the transaction type was `referral_cft`
     assert_equal '34', response.params['O']
   end
