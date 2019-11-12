@@ -167,7 +167,7 @@ class CredoraxTest < Test::Unit::TestCase
     assert_equal '8a82944a5351570601535955efeb513c;006596;02617cf5f02ccaed239b6521748298c5;purchase', response.authorization
 
     referral_cft = stub_comms do
-      @gateway.refund(@amount, response.authorization, options = {referral_cft: true} )
+      @gateway.refund(@amount, response.authorization, referral_cft: true)
     end.check_request do |endpoint, data, headers|
       assert_match(/8a82944a5351570601535955efeb513c/, data)
       # Confirm that the transaction type is `referral_cft`
@@ -180,7 +180,7 @@ class CredoraxTest < Test::Unit::TestCase
 
   def test_failed_referral_cft
     response = stub_comms do
-      @gateway.refund(nil, '', options = {referral_cft: true} )
+      @gateway.refund(nil, '', referral_cft: true)
     end.check_request do |endpoint, data, headers|
       # Confirm that the transaction type is `referral_cft`
       assert_match(/O=34/, data)
