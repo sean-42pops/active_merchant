@@ -175,7 +175,7 @@ class CredoraxTest < Test::Unit::TestCase
     end.respond_with(successful_referral_cft_response)
 
     assert_success referral_cft
-    assert_equal 'Succeeded', refund.message
+    assert_equal 'Succeeded', referral_cft.message
   end
 
   def test_failed_referral_cft
@@ -187,7 +187,7 @@ class CredoraxTest < Test::Unit::TestCase
     end.respond_with(failed_referral_cft_response)
 
     assert_failure response
-    assert_equal '2. At least one of input parameters is malformed.: Parameter [g4] cannot be empty.', response.message
+    assert_equal 'Referred to transaction has not been found.', response.message
   end
 
   def test_successful_credit
@@ -827,13 +827,11 @@ class CredoraxTest < Test::Unit::TestCase
   end
 
   def successful_referral_cft_response
-    # This response format is currently unknown due to the restrictions of our test gateway implementation.
-    'RESPONSE NEEDED'
+    'M=SPREE978&O=34&T=11%2F15%2F2019+15%3A56%3A08&V=413&a1=e852c517da0ffb0cde45671b39165449&a2=2&a4=100&a9=9&b2=2&g2=XZZ72c3228fc3b58525STV56T7YMFAJB&z1=XZZ72e64209459e8C2BAMTBS65MCNGIF&z13=931924132623&z2=0&z3=Transaction+has+been+executed+successfully.&z33=CREDORAX&z34=59990010&z39=XZZ72e64209459e8C2BAMTBS65MCNGIF&z4=HOSTOK&z6=00&K=76f8a35c3357a7613d63438bd86c06d9'
   end
 
   def failed_referral_cft_response
-    # This response format is currently unknown due to the restrictions of our test gateway implementation.
-    'RESPONSE NEEDED'
+    'T=11%2F15%2F2019+17%3A17%3A45&a1=896ffaf13766fff647d863e8ab0a707c&z1=XZZ7246087744e7993DRONGBWN4RNFWJ&z2=-9&z3=Referred+to+transaction+has+not+been+found.'
   end
 
   def successful_credit_response
