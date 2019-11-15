@@ -131,6 +131,7 @@ module ActiveMerchant #:nodoc:
         add_identification(xml, identification)
         add_amount(xml, money)
         add_customer_data(xml, options)
+        add_invoice(xml, options)
 
         xml.target!
       end
