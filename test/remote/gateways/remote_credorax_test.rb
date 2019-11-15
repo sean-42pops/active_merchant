@@ -286,89 +286,29 @@ class RemoteCredoraxTest < Test::Unit::TestCase
   end
 
   def test_successful_referral_cft
-    # # Referral CFT transactions require a 3DS Mastercard transaction
-    # options = @options.merge(
-    #   eci: '02',
-    #   cavv: 'jJ81HADVRtXfCBATEp01CJUAAAA=',
-    #   xid: '00000000000000000501',
-    #   # Having processor-specification enabled in Credorax test account causes 3DS tests to fail without a r1 (processor) parameter.
-    #   processor: 'CREDORAX'
-    # )
-
-    # response = @gateway.purchase(@amount, @fully_auth_card, options)
-    # assert_success response
-    # assert_equal '1', response.params['H9']
-    # assert_equal 'Succeeded', response.message
-
-    # 3DS2 purchase
     options = @options.merge(@normalized_3ds_2_options)
     response = @gateway.purchase(@amount, @three_ds_card, options)
     assert_success response
-    p "Response"
-    p response
-    p "Response Authorization"
-    p response.authorization
-    assert_equal 'Succeeded', response.message
-
-  # def test_successful_purchase_with_auth_data_via_normalized_3ds2_options
-    version = '2.0'
-    eci = '02'
-    cavv = 'jJ81HADVRtXfCBATEp01CJUAAAA='
-    ds_transaction_id = '97267598-FAE6-48F2-8083-C23433990FBC'
-    options = @options.merge(
-      three_d_secure: {
-        version: version,
-        eci: eci,
-        cavv: cavv,
-        ds_transaction_id: ds_transaction_id
-      },
-      # Having processor-specification enabled in Credorax test account causes 3DS tests to fail without a r1 (processor) parameter.
-      processor: 'CREDORAX'
-    )
-
-    response = @gateway.purchase(@amount, @fully_auth_card, options)
-    assert_success response
-    p "Response"
-    p response
-    p "Response Authorization"
-    p response.authorization
-    assert_equal '1', response.params['H9']
     assert_equal 'Succeeded', response.message
 
     cft_options = { referral_cft: true, email: 'john.smith@test.com' }
     referral_cft = @gateway.refund(@amount, response.authorization, cft_options)
     assert_success referral_cft
     assert_equal 'Succeeded', referral_cft.message
-    # Confirm that the transaction type was `referral_cft`
+    # Confirm that the operation code was `referral_cft`
     assert_equal '34', referral_cft.params['O']
   end
 
   def test_failed_referral_cft
-  # def test_successful_purchase_with_auth_data_via_normalized_3ds2_options
-    version = '2.0'
-    eci = '02'
-    cavv = 'jJ81HADVRtXfCBATEp01CJUAAAA='
-    ds_transaction_id = '97267598-FAE6-48F2-8083-C23433990FBC'
-    options = @options.merge(
-      three_d_secure: {
-        version: version,
-        eci: eci,
-        cavv: cavv,
-        ds_transaction_id: ds_transaction_id
-      },
-      # Having processor-specification enabled in Credorax test account causes 3DS tests to fail without a r1 (processor) parameter.
-      processor: 'CREDORAX'
-    )
-
-    response = @gateway.purchase(@amount, @fully_auth_card, options)
+    options = @options.merge(@normalized_3ds_2_options)
+    response = @gateway.purchase(@amount, @three_ds_card, options)
     assert_success response
-    assert_equal '1', response.params['H9']
     assert_equal 'Succeeded', response.message
 
-    options = {referral_cft: true}
-    response = @gateway.refund(@amount, '123;123;123', options)
-    assert_failure response
-    assert_equal 'Referred to transaction has not been found.', response.message
+    cft_options = { referral_cft: true, email: 'john.smith@test.com' }
+    referral_cft = @gateway.refund(@amount, '123;123;123', cft_options)
+    assert_failure referral_cft
+    assert_equal 'Referred to transaction has not been found.', referral_cft.message
   end
 
   def test_successful_credit
@@ -495,11 +435,12 @@ class RemoteCredoraxTest < Test::Unit::TestCase
 
   def test_purchase_passes_processor
     # returns a successful response when a valid processor parameter is sent
-    assert good_response = @gateway.purchase(@amount, @credit_card, @options.merge(fixtures(:credorax_with_processor)))
+    assert good_response = @gateway.purchase(@amount, @credit_card, @options.merge(processor: 'CREDORAX'))
     assert_success good_response
     assert_equal 'Succeeded', good_response.message
+    assert_equal 'CREDORAX', good_response.params['Z33']
 
-    # returns a failed response when an invalid tx_source parameter is sent
+    # returns a failed response when an invalid processor parameter is sent
     assert bad_response = @gateway.purchase(@amount, @credit_card, @options.merge(processor: 'invalid'))
     assert_failure bad_response
   end
