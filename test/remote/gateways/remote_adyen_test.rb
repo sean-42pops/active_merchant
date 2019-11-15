@@ -363,6 +363,30 @@ class RemoteAdyenTest < Test::Unit::TestCase
     assert_equal '[capture-received]', response.message
   end
 
+  def test_successful_purchase_with_splits
+    split_data = [{
+      'amount' => {
+        'currency' => 'USD',
+        'value' => 50
+        },
+      'type' => 'MarketPlace',
+      'account' => '163298747',
+      'reference' => 'QXhlbFN0b2x0ZW5iZXJnCg'
+    }, {
+      'amount' => {
+        'currency' => 'USD',
+        'value' => 50
+        },
+      'type' => 'Commission',
+      'reference' => 'THVjYXNCbGVkc29lCg'
+    }]
+
+    options = @options.merge({ splits: split_data })
+    response = @gateway.purchase(@amount, @credit_card, options)
+    assert_failure response
+    assert_match 'Invalid additionalData: MarketPlace account is not configured for this merchant', response.message
+  end
+
   def test_successful_purchase_with_idempotency_key
     options = @options.merge(idempotency_key: SecureRandom.hex)
     response = @gateway.purchase(@amount, @credit_card, options)
